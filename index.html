@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>text detection</title>
+  </head>
+  <body>
+    <div class="container">
+      <input type="file" id="file-input" accept="image/*" />
+      <br />
+      <img id="preview-image" src="#" alt="Preview Gambar" width="500"/>
+      <br>
+      <progress value="0" max="1" class="progress"></progress>
+      <br>
+      <textarea name="" id="text" cols="80" rows="20"></textarea>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <script>
+      const fileInput = document.querySelector('input[type="file"]');
+      const progress = document.querySelector('.progress');
+      const h1 = document.getElementById("text");
+      fileInput.addEventListener("change", function (event) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const previewImage = document.getElementById("preview-image");
+          previewImage.src = e.target.result;
+          const image = previewImage.src;
+          Tesseract.recognize(image, "eng", {
+            logger: (m) => {
+              console.log(m);
+              console.log(m.progress);
+              progress.value = m.progress
+              h1.textContent = `please wait...${m.status}`;
+            },
+          }).then(({ data: { text } }) => {
+            console.log(text);
+            h1.textContent = text;
+          });
+        };
+        reader.readAsDataURL(file);
+      });
+    </script>
+    <!-- <script src="./index.js"></script> -->
+  </body>
+</html>
